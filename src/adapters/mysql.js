@@ -1,11 +1,12 @@
 const mysql = require('promise-mysql')
+const config = require('../config')
 
 pool = mysql.createPool({
-  host           : 'localhost',
-  user           : 'root',
-  password       : '_DivVb76JJesfy54fdghDFs12',
-  database       : 'delivery-reporter',
-  connectionLimit: 10
+  host           : config.dbhost,
+  user           : config.dbuser,
+  password       : config.dbpass,
+  database       : config.dbname,
+  connectionLimit: config.connectionLimit
 })
 
 function getConnection () {

@@ -1,8 +1,14 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const requireDir = require('require-dir')
+
+const passport = require('passport')
+const Authenticate = require('./authenticate')
+const Verify = require('./verify')
+
 const cors = require('cors')
 const routes = require('../routes.json')
+
 
 // Set static PORT as env var or default to 9999
 const PORT = process.env.PORT || 9999
@@ -16,6 +22,8 @@ app.use(bodyParser.json())
 // Enable Cross-Origin Resource Sharing for all endpoints
 app.use(cors())
 
+app.use(passport.initialize())
+
 // Get all controllers using requireDir to load from ./controllers
 const controllers = requireDir('./controllers')
 
@@ -27,6 +35,34 @@ app.use((req, res, next) => {
   next()
 })
 
+// Login endpoint
+app.post('/login', (req, res, next) => {
+
+  // First, validate the login credentials
+  passport.authenticate('local', (err, user, info) => {
+    if (err) {
+      return next(err)
+    }
+    if (!user) {
+      return res.status(401).json({
+        error: (info ? info.message : 'Invalid Credentials')
+      })
+    }
+ 
+    // If the login is successful, create a token and send it back
+    const token = Verify.getToken({'id': user.id, 'username': user.name})
+    
+    res.status(200).json({
+      status: 'Login Successful!',
+      success: true,
+      token: token
+    })
+  })(req, res, next)
+
+})
+
+
+
 // Build API endpoints dynamically from routes
 // ---
 // Step 1. Iterate over all routes (root-level)
@@ -36,7 +72,7 @@ Object.keys(routes).forEach((path) => {
     // Step 3. Pull controller and handler properties for each endpoint
     const { controller, handler } = routes[path][method]
     // Step 4. Build endpoint, ex: app.get(/some/path, (req, res) => ...)
-    app[method](path, (req, res) => {
+    app[method](path, Verify.verifyUser, (req, res) => {
       // Step 5. When a route is hit, call the handler method on the controller
       controllers[controller][handler](req)
         // Step 6. When a controller resolves, respond with 200 and data
