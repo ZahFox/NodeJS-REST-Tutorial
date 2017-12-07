@@ -20,7 +20,7 @@ This project is intended to be a private API for me to use so that I will be abl
 
 ### Setting Up the Database
 
-This repository contains an SQL [script](./database/mysql-bootstrap.sql) in the database folder that you may use to create the database for this project. Be aware that the queries in this script are intended for MySQL v5.7.20. If you are using a different database, I can't guarentee that this script will work for you. This script will create a default user with `admin` as the username and `admin` as the password. You will also need to edit the default settings in the [config](./src/config.js) file to match your database credentials. I would also recommened changing the secretKey in this file because it will be used to encrypt the tokens this API uses for user authentication.
+This repository contains an SQL [script](./database/mysql-bootstrap.sql) in the database folder that you may use to create the database for this project. Be aware that the queries in this script are intended for MySQL v5.7.20. If you are using a different database, I can't guarentee that this script will work for you. This script will create a default user with `admin` as the username and `admin` as the password. You will also need to edit the default settings in the [config](./src/config.js) file to match your database credentials. I would also recommended changing the secretKey in this file because it will be used to encrypt the tokens this API uses for user authentication.
 
 
 ## Using the API
