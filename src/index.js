@@ -9,7 +9,6 @@ const Verify = require('./verify')
 const cors = require('cors')
 const routes = require('../routes.json')
 
-
 // Set static PORT as env var or default to 9999
 const PORT = process.env.PORT || 9999
 

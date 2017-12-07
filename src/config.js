@@ -1,8 +1,8 @@
 module.exports = {
-    'secretKey'        : '12345-67890-09876-54321',
-    'dbhost'           : 'localhost',
-    'dbuser'           : 'root',
-    'dbpass'           : '_DivVb76JJesfy54fdghDFs12',
-    'dbname'           : 'delivery-reporter',
-    'connectionLimit'  : 10
+  'secretKey'        : '84d19fd1-16c2-45cd-879d-22fa5202856d',
+  'dbhost'           : 'localhost',
+  'dbuser'           : 'root',
+  'dbpass'           : '_DivVb76JJesfy54fdghDFs12',
+  'dbname'           : 'delivery-reporter',
+  'connectionLimit'  : 10
 }

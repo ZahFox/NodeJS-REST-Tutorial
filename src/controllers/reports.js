@@ -26,8 +26,8 @@ const Reports = {
       const profit = connection.escape(req.body.profit)
 
       return connection.query(
-      `INSERT INTO report (date, day_of_week, store_location, hours_worked, total_tips, gas_money, profit)` +
-        `VALUES (${date}, ${dayOfWeek}, ${storeLocation}, ${hoursWorked}, ${totalTips}, ${gasMoney}, ${profit})`)
+      `INSERT INTO report (date, day_of_week, store_location, hours_worked, total_tips, gas_money, profit)
+         VALUES (${date}, ${dayOfWeek}, ${storeLocation}, ${hoursWorked}, ${totalTips}, ${gasMoney}, ${profit})`)
         .then( ({ affectedRows, insertId }) => {
           return { affectedRows, insertId }
         })
@@ -41,13 +41,13 @@ const Reports = {
    * @returns {Promise.<Array>}
    */
   getAllReports: () => {
-      return Promise.using(getConnection(), (connection) => {
-        return connection.query('SELECT * FROM report')
-          .then( (rows) => {
-            return rows
-          })
-          .catch(errors.validation)
-      })
+    return Promise.using(getConnection(), (connection) => {
+      return connection.query('SELECT * FROM report')
+        .then( (rows) => {
+          return rows
+        })
+        .catch(errors.validation)
+    })
   },
 
 
