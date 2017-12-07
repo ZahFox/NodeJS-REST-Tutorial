@@ -24,15 +24,11 @@ const Users = {
       const password = bcrypt.hashSync(connection.escape(req.body.password), salt)
       const qstr = 'INSERT INTO `user` (`username`, `password`)' +
                    " VALUES ("+username+", '"+password+"')"
-
-      console.log(qstr)
       return connection.query(qstr)
       .then( ({ affectedRows, insertId }) => {
         return { affectedRows, insertId }
       })
       .catch(errors.validation)
-
-      
     })
   },
 

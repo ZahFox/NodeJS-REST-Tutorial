@@ -20,19 +20,28 @@ CREATE TABLE `report` (
   `profit` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-INSERT INTO `report` (`report_id`, `date`, `day_of_week`, `store_location`, `hours_worked`, `total_tips`, `gas_money`, `profit`) VALUES(1, '2017-01-27', 'FRIDAY', 'LOSEY BLVD.', 6.68, 31, 10, 21);
-INSERT INTO `report` (`report_id`, `date`, `day_of_week`, `store_location`, `hours_worked`, `total_tips`, `gas_money`, `profit`) VALUES(2, '2017-01-27', 'SUNDAY', 'LOSEY BLVD.', 6.68, 31, 10, 21);
-INSERT INTO `report` (`report_id`, `date`, `day_of_week`, `store_location`, `hours_worked`, `total_tips`, `gas_money`, `profit`) VALUES(3, '2017-01-27', 'SUNDAY', 'LOSEY BLVD.', 6.68, 222, 666, 21);
-INSERT INTO `report` (`report_id`, `date`, `day_of_week`, `store_location`, `hours_worked`, `total_tips`, `gas_money`, `profit`) VALUES(4, '2017-01-27', 'SUNDAY', 'LOSEY BLVD.', 6.68, 31, 10, 21);
-INSERT INTO `report` (`report_id`, `date`, `day_of_week`, `store_location`, `hours_worked`, `total_tips`, `gas_money`, `profit`) VALUES(5, '2017-01-27', 'SUNDAY', 'LOSEY BLVD.', 6.68, 31, 10, 21);
+CREATE TABLE `user` (
+  `user_id` tinyint(3) UNSIGNED NOT NULL,
+  `username` varchar(64) NOT NULL,
+  `password` char(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `user` (`user_id`, `username`, `password`) VALUES
+(1, 'zahfox', '$2a$10$5KTZTsq21Rz9wgcN1OK4weB4rNzZzpcN.9z2UCR0nZXsKAnUsP.1e');
 
 
 ALTER TABLE `report`
   ADD PRIMARY KEY (`report_id`) USING BTREE;
 
+ALTER TABLE `user`
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `unique_username` (`username`);
+
 
 ALTER TABLE `report`
-  MODIFY `report_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;COMMIT;
+  MODIFY `report_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE `user`
+  MODIFY `user_id` tinyint(3) UNSIGNED NOT NULL AUTO_INCREMENT;COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

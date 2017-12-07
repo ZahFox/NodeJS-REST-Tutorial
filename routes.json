@@ -17,6 +17,10 @@
     "put": {
       "controller": "reports",
       "handler": "updateReport"
+    },
+    "delete": {
+      "controller": "reports",
+      "handler": "deleteReport"
     }
   },
   "/register": {
