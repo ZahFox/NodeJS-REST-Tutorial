@@ -36,31 +36,7 @@ app.use((req, res, next) => {
 })
 
 // Login endpoint
-app.post('/login', (req, res, next) => {
-
-  // First, validate the login credentials
-  passport.authenticate('local', (err, user, info) => {
-    if (err) {
-      return next(err)
-    }
-    if (!user) {
-      return res.status(401).json({
-        error: (info ? info.message : 'Invalid Credentials')
-      })
-    }
- 
-    // If the login is successful, create a token and send it back
-    const token = Verify.getToken({'id': user.id, 'username': user.name})
-    
-    res.status(200).json({
-      status: 'Login Successful!',
-      success: true,
-      token: token
-    })
-  })(req, res, next)
-
-})
-
+app.post('/login', controllers.users.login)
 
 
 // Build API endpoints dynamically from routes

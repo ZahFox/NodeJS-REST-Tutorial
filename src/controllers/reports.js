@@ -3,6 +3,7 @@ const Promise = require('bluebird')
 const getConnection = require('../adapters/mysql')
 // Require errors
 const errors = require('../lib/errors')
+const bcrypt = require('bcryptjs')
 
 
 // Reports controller object contains all methods which are exported and used 
@@ -18,19 +19,19 @@ const Reports = {
     return Promise.using(getConnection(), (connection) => {
       let date = connection.escape(req.body.date)
       let dayOfWeek = connection.escape(req.body.day_of_week)
-      let  storeLocation = connection.escape(req.body.store_location)
+      let storeLocation = connection.escape(req.body.store_location)
       let hoursWorked = connection.escape(req.body.hours_worked)
       let totalTips = connection.escape(req.body.total_tips)
       let gasMoney = connection.escape(req.body.gas_money)
       let profit = connection.escape(req.body.profit)
 
-        return connection.query(
-        `INSERT INTO report (date, day_of_week, store_location, hours_worked, total_tips, gas_money, profit)` +
-          `VALUES (${date}, ${dayOfWeek}, ${storeLocation}, ${hoursWorked}, ${totalTips}, ${gasMoney}, ${profit})`)
-          .then( ({ affectedRows, insertId }) => {
-            return { affectedRows, insertId }
-          })
-          .catch(errors.validation)
+      return connection.query(
+      `INSERT INTO report (date, day_of_week, store_location, hours_worked, total_tips, gas_money, profit)` +
+        `VALUES (${date}, ${dayOfWeek}, ${storeLocation}, ${hoursWorked}, ${totalTips}, ${gasMoney}, ${profit})`)
+        .then( ({ affectedRows, insertId }) => {
+          return { affectedRows, insertId }
+        })
+        .catch(errors.validation)
     })
   },
 

@@ -18,5 +18,11 @@
       "controller": "reports",
       "handler": "updateReport"
     }
+  },
+  "/register": {
+    "post": {
+      "controller": "users",
+      "handler": "register"
+    }
   }
 }
