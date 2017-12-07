@@ -1,288 +1,249 @@
-# REST API's Using NodeJS and Express
+# Delivery Reporter API
 
-## Representational State Transfer & HTTP
+## About This Project
 
-Inherently, HTTP transactions have no "state", e.g. an event is only available during the transaction and exists no longer than the transaction. RESTful API's utilize HTTP request + response transactions to communicate data between services and consumers.
+This project is intended to be a private API for me to use so that I will be able to track and analyze the data I collect from my delivery job. This data includes: how many hours I've worked, which store I worked at, what day it was, how much money I made in tips, and the amount of money I spent on gas. Even though I intend to use this API privately, I still decided to share it publicly for two reasons. The first reason is that this API is part of one of my final projects for the advanced topics in programming course at Western Technical College. The second reason is that I'm more than willing to share this code with anyone else who would like to do something similar to this. If you would like to use this project or are interested in how it works, keep reading and you may find what you're looking for. 
 
-Hyper Text Transfer Protocol (HTTP) is used to communicate these transactions. RESTful services utilize routes, queries, bodies, headers, methods, and status-codes to create a meaningful interface/standard for these transactions.
+**In order to use this project you will need access to an environment with a MySQL database, Git, and Node.JS.**
 
-**The core goal of REST services is to provide Create, Read, Update and Delete (CRUD) mechanisms on a resource. A well-designed REST API utilizes the components of HTTP requests & responses to provide a consistent, meaningful syntax for performing CRUD operations.**
 
-### Methods
+## Getting Started
 
-HTTP request methods indicate to a service what action should be performed on a resource.
+### Clone or Download the Repo and Install Node Modules
 
-| METHOD   | ACTION                                              |
-|----------|-----------------------------------------------------|
-| `GET`    | (R) Retrieve from a resource                        |
-| `POST`   | (C) Add to a resource                               |
-| `PUT`    | (U) Replace an item (full update) in a resource     |
-| `PATCH`  | (U) Replace data in an item (partial) in a resource |
-| `DELETE` | (D) Remove an item from a resource                  |
+#### Download this repository using one of the following methods:
+* **Clone with Git** `git clone https://github.com/ZahFox/delivery-reporter-api.git`
+* **Download Link** `https://github.com/ZahFox/delivery-reporter-api/archive/master.zip`
+#### Using the CLI of your preference, navigate to directory that you downloaded this project into and issue the following command:
 
-### Path Paramaters and Queries
+`npm install`
 
-Path parameters and queries are used to indicate the target of an action on a REST API.
+### Setting Up the Database
 
+This repository contains an SQL [script](./database/mysql-bootstrap.sql) in the database folder that you may use to create the database for this project. Be aware that the queries in this script are intended for MySQL v5.7.20. If you are using a different database, I can't guarentee that this script will work for you. This script will create a default user with `admin` as the username and `admin` as the password. You will also need to edit the default settings in the [config](./src/config.js) file to match your database credentials. I would also recommened changing the secretKey in this file because it will be used to encrypt the tokens this API uses for user authentication.
+
+
+## Using the API
+
+### Run the Application
+
+Once you have downloaded the project, installed the dependencies, and setup the database, you are one simple command away from running this project!
+Make sure that you are in the project's root directory and issue the following command:
+
+`npm start`
+
+### API Routes
+
+If your CLI responded with `listening on 9999`, that means you are ready to get started! This API contains seven routes, five of which require token authentication. This means that only registered users are allowed to create, read, update, and delete report records. I would recommend that you disable the `/register` path after you have created the users that you need. This will prevent random people from creating user accounts. Later versions of this project will have report records that are only accessible by the user that created them, but, for now, all report records are avaiable to all users.
+
+
+| ROUTE           | METHOD    | AUTH     | DESCRIPTION                                 |
+|-----------------|-----------|----------|---------------------------------------------|
+| `/reports`      | `GET`     | `true`   | get all report records                      |
+| `/reports`      | `POST`    | `true`   | create a new report record                  |
+| `/reports/:id`  | `GET`     | `true`   | get a report record using its report_id     |
+| `/reports/:id`  | `PUT`     | `true`   | update a report record using its report_id  |
+| `/reports/:id`  | `DELETE`  | `true`   | delete a report record using its report_id  |
+| `/register`     | `POST`    | `false`  | create a new user record                    |
+| `/login`        | `POST`    | `false`  | verify a user login attempt                 |
+
+### Registering Users and Logging In
+
+Before you can use any of the report routes you will need to send a `POST` request to the `/login` route and save the token from the response. This token may be included in any request for a route that requires authentication by adding it as a query parameter, as an x-access-token header, or including it in the body. By default this token will only be valid for one hour. You may login using the default user account or register a new one.
+
+#### /register (POST)
+
+create a new `user` record
+
+**Request:**
 ```
-<protocol>://<domain>/<resource>/<parameter>?<query>
-```
-
-**Examples:**
-
-```
->> Use HTTPS protocol to connect to `api.com` and interact with the `users` resource:
-
-https://api.com/users
-
->> Use HTTPS protocol to connect to `api.com` and interact with the `users` resource, specifically the item with id `12345`
-
-https://api.com/users/12345
-
->> Use HTTPS protocol to connect to `api.com` and interact with `users` resource, specifically those with property `type` of `admin`
-
-https://api.com/users?type=admin
-```
-
-### Headers
-
-Headers provide a method for communicating specifics on an action that cannot be expressed with the method or the path.
-
-Headers can send a variety of information to a REST API, from authentication to resource-specific instructions
-
-**Examples:**
-
-```
+Method:   POST
+URL:      http://localhost:9999/register
+Payload:
 {
-  Content-Type: 'application/json',
-  Authorization: 'Bearer KDIN73dDJi83jk9WKs99djSSSKs',
-  x-limit: 10,
-  x-start-record: '56789'
+  "username": "test",
+  "password": "test"
 }
 ```
 
-The above headers indiacte the following:
-
-1. Content sent will be in JSON format
-2. Authorization will be done with the included `Bearer` token
-3. Limit response to 10 items
-4. Start pagination at record with id `56789`
-
-There are a myriad of standard HTTP headers (`Content-Type` and `Authorization` in the above example). Non-standard headers are represented with a prefix, typically `x-`.
-
-Response headers are also important. A response header could include information like `x-last-record`. If the above example were used in a situation where results from a search were being paginated, the consumer would utilize `x-last-record` to indicate the next requests `x-start-record` in order to preserve the "state" of the pagination action.
-
-### Status Codes
-
-It is imperative for consuming services of n API to understand context of a response immediately as this indicates to the consuming service how to process the response.
-
-For example, a success (`200`) for a `POST` could indicate to the consumer that the record should be shown in an interface, whereas an invalid request (`400`) could indicate that the user interface should display verbiage to instruct a resolution to the error (e.g. validation error on an input).
-
-#### Status Codes
-
-**1×× Informational**
+**Response:**
 ```
-100 Continue
-101 Switching Protocols
-102 Processing
+{
+  "affectedRows": 1,
+  "insertId": 2
+}
 ```
 
-**2×× Success**
-```
-200 OK
-201 Created
-202 Accepted
-203 Non-authoritative Information
-204 No Content
-205 Reset Content
-206 Partial Content
-207 Multi-Status
-208 Already Reported
-226 IM Used
-```
+#### /login (POST)
 
-**3×× Redirection**
+verify a `user` login attempt
+
+**Request:**
 ```
-300 Multiple Choices
-301 Moved Permanently
-302 Found
-303 See Other
-304 Not Modified
-305 Use Proxy
-307 Temporary Redirect
-308 Permanent Redirect
+Method:   POST
+URL:      http://localhost:9999/login
+Payload:
+{
+  "username": "test",
+  "password": "test"
+}
 ```
 
-
-**4×× Client Error**
+**Response:**
 ```
-400 Bad Request
-401 Unauthorized
-402 Payment Required
-403 Forbidden
-404 Not Found
-405 Method Not Allowed
-406 Not Acceptable
-407 Proxy Authentication Required
-408 Request Timeout
-409 Conflict
-410 Gone
-411 Length Required
-412 Precondition Failed
-413 Payload Too Large
-414 Request-URI Too Long
-415 Unsupported Media Type
-416 Requested Range Not Satisfiable
-417 Expectation Failed
-418 I'm a teapot
-421 Misdirected Request
-422 Unprocessable Entity
-423 Locked
-424 Failed Dependency
-426 Upgrade Required
-428 Precondition Required
-429 Too Many Requests
-431 Request Header Fields Too Large
-444 Connection Closed Without Response
-451 Unavailable For Legal Reasons
-499 Client Closed Request
+{
+  "status": "Login Successful!",
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTI2MzA2MzgsImV4cCI6MTUxMjYzNDIzOH0.VX894n8QoHhltjxMfiA7q6rKCOb7FqZxO6bfNXeEgNM"
+}
 ```
 
+### Creating, Reading, Updating, and Deleting Records
 
-**5×× Server Error**
-```
-500 Internal Server Error
-501 Not Implemented
-502 Bad Gateway
-503 Service Unavailable
-504 Gateway Timeout
-505 HTTP Version Not Supported
-506 Variant Also Negotiates
-507 Insufficient Storage
-508 Loop Detected
-510 Not Extended
-511 Network Authentication Required
-599 Network Connect Timeout Error
-```
+The following examples will use the token as an `x-access-token` header for authentication. You will not be able to use the token provided in these examples. It is only there to show what your request would look like.
 
-### Example REST HTTP Requests & Responses
+#### /reports (GET)
 
-#### GET (Read All)
-
-Get all items from resource `users`
+get all `report` records
 
 **Request:**
 ```
 Method:   GET
-URL:      http://api.com/users
+URL:      http://localhost:9999/reports
+Headers:
+{
+  Content-Type: "application/json",
+  x-access-token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTI2MzA2MzgsImV4cCI6MTUxMjYzNDIzOH0.VX894n8QoHhltjxMfiA7q6rKCOb7FqZxO6bfNXeEgNM"
+}
 ```
 
 **Response:**
 ```
 [
   {
-    id: '1234567890'
-    email: 'someone@email.com'
-  }
+    "report_id": 7,
+    "date": "2017-12-01T06:00:00.000Z",
+    "day_of_week": "FRIDAY",
+    "store_location": "LOSEY BLVD.",
+    "hours_worked": 5,
+    "total_tips": 33,
+    "gas_money": 7,
+    "profit": 26
+  },
   ...
 ]
 ```
 
-#### GET (Read Item)
+#### /reports (POST)
 
-Get a specific item from resource `users`
-
-**Request:**
-```
-Method:   GET
-URL:      http://api.com/users/1234567890
-```
-
-**Response:**
-```
-{
-  id: '1234567890',
-  email: 'someone@email.com'
-}
-```
-
-#### GET (Read via Query)
-
-Get items from resource `users` based on query
+create a new `report` record
 
 **Request:**
-```
-Method:   GET
-URL:      http://api.com/users?email=someone@email.com
-```
-
-**Response:**
-```
-[
-  {
-    id: '1234567890',
-    email: 'someone@email.com'
-  }
-]
-```
-
-#### POST (Create Item)
-
-Create a new item in resource `users`
-
-**Request**
 ```
 Method:   POST
-URL:      http://api.com/users
+URL:      http://localhost:9999/reports
+Headers:
+{
+  Content-Type: "application/json",
+  x-access-token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTI2MzA2MzgsImV4cCI6MTUxMjYzNDIzOH0.VX894n8QoHhltjxMfiA7q6rKCOb7FqZxO6bfNXeEgNM"
+}
 Payload:
-  {
-    email: 'newuser@email.com'
-  }
+{
+  "date": "2017-11-05",
+  "day_of_week": "SUNDAY",
+  "store_location": "PEARL ST.",
+  "hours_worked": 6.33,
+  "total_tips": 42,
+  "gas_money": 13,
+  "profit": 29
+}
 ```
 
 **Response:**
 ```
 {
-  id: '2345678901',
-  email: 'newuser@email.com'
+  "affectedRows": 1,
+  "insertId": 8
 }
 ```
 
-#### PUT (Update Item)
+#### /reports/:id (GET)
 
-Updates an existing item in resource `users`
+get a `report` record using its `report_id`
+
+**Request:**
+```
+Method:   GET
+URL:      http://localhost:9999/reports/7
+Headers:
+{
+  Content-Type: "application/json",
+  x-access-token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTI2MzA2MzgsImV4cCI6MTUxMjYzNDIzOH0.VX894n8QoHhltjxMfiA7q6rKCOb7FqZxO6bfNXeEgNM"
+}
+```
+
+**Response:**
+```
+{
+  "report_id": 7,
+  "date": "2017-12-01T06:00:00.000Z",
+  "day_of_week": "FRIDAY",
+  "store_location": "LOSEY BLVD.",
+  "hours_worked": 5,
+  "total_tips": 33,
+  "gas_money": 7,
+  "profit": 26
+}
+```
+
+#### /reports/:id (PUT)
+
+update a `report` record using its `report_id`
 
 **Request:**
 ```
 Method:   PUT
-URL:      http://api.com/users/2345678901
+URL:      http://localhost:9999/reports/7
+Headers:
+{
+  Content-Type: "application/json",
+  x-access-token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTI2MzA2MzgsImV4cCI6MTUxMjYzNDIzOH0.VX894n8QoHhltjxMfiA7q6rKCOb7FqZxO6bfNXeEgNM"
+}
 Payload:
-  {
-    id: '2345678901',
-    email: 'updateduser@email.com'
-  }
+{
+  "hours_worked": 24,
+  "total_tips": 9001,
+  "gas_money": 0,
+  "profit": 9001
+}
 ```
 
 **Response:**
 ```
 {
-  id: '2345678901',
-  email: 'updateduser@email.com'
+  "affectedRows": 1,
+  "changedRows": 1
 }
 ```
 
-#### DELETE (Delete Item)
+#### /reports/:id (DELETE)
 
-Removes an existing item in resource `users`
-
+delete a `report` record using its `report_id`
 
 **Request:**
 ```
 Method:   DELETE
-URL:      http://api.com/users/1234567890
+URL:      http://localhost:9999/reports/8
+Headers:
+{
+  Content-Type: "application/json",
+  x-access-token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTI2MzA2MzgsImV4cCI6MTUxMjYzNDIzOH0.VX894n8QoHhltjxMfiA7q6rKCOb7FqZxO6bfNXeEgNM"
+}
 ```
 
 **Response:**
 ```
-Ok
+{
+  "affectedRows": 1
+}
 ```

@@ -52,7 +52,7 @@ const Reports = {
 
 
   /**
-   * To get a specific Report record by its report_id
+   * To get a Report record using its report_id
    * @param {Object} req The request object
    * @returns {Promise.<Object>}
    */
@@ -73,7 +73,7 @@ const Reports = {
 
 
   /**
-   * To update a specific Report record by its report_id
+   * To update a Report record using its report_id
    * @param {Object} req The request object
    * @returns {Promise.<Object>}
    */
@@ -105,6 +105,11 @@ const Reports = {
   },
 
 
+  /**
+   * To delete a Report record using its report_id
+   * @param {Object} req The request object
+   * @returns {Promise.<Object>}
+   */
   deleteReport: (req) => {
     return Promise.using(getConnection(), (connection) => {
       const id = connection.escape(req.params.id)

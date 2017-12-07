@@ -27,7 +27,7 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 INSERT INTO `user` (`user_id`, `username`, `password`) VALUES
-(1, 'zahfox', '$2a$10$5KTZTsq21Rz9wgcN1OK4weB4rNzZzpcN.9z2UCR0nZXsKAnUsP.1e');
+(1, 'admin', '$2a$10$5KTZTsq21Rz9wgcN1OK4weB4rNzZzpcN.9z2UCR0nZXsKAnUsP.1e');
 
 
 ALTER TABLE `report`

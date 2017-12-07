@@ -2,31 +2,37 @@
   "/reports": {
     "post": {
       "controller": "reports",
-      "handler": "createReport"
+      "handler": "createReport",
+      "auth": true
     },
     "get": {
       "controller": "reports",
-      "handler": "getAllReports"
+      "handler": "getAllReports",
+      "auth": true
     }
   },
   "/reports/:id": {
     "get": {
       "controller": "reports",
-      "handler": "getReportById"
+      "handler": "getReportById",
+      "auth": true
     },
     "put": {
       "controller": "reports",
-      "handler": "updateReport"
+      "handler": "updateReport",
+      "auth": true
     },
     "delete": {
       "controller": "reports",
-      "handler": "deleteReport"
+      "handler": "deleteReport",
+      "auth": false
     }
   },
   "/register": {
     "post": {
       "controller": "users",
-      "handler": "register"
+      "handler": "register",
+      "auth": false
     }
   }
 }

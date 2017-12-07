@@ -46,9 +46,9 @@ Object.keys(routes).forEach((path) => {
   // Step 2. Iterate over paths
   Object.keys(routes[path]).forEach((method) => {
     // Step 3. Pull controller and handler properties for each endpoint
-    const { controller, handler } = routes[path][method]
+    const { controller, handler, auth } = routes[path][method]
     // Step 4. Build endpoint, ex: app.get(/some/path, (req, res) => ...)
-    app[method](path, Verify.verifyUser, (req, res) => {
+    app[method](path, (!auth ? (req, res, next) => next() : Verify.verifyUser ), (req, res) => {
       // Step 5. When a route is hit, call the handler method on the controller
       controllers[controller][handler](req)
         // Step 6. When a controller resolves, respond with 200 and data
