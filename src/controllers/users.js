@@ -1,72 +1,64 @@
+const Promise = require('bluebird')
+const passport = require('passport')
 // Require the adapter so the datastore can be accessed
-const Conn = require('../adapters/nedb')
-// Require the userModel so data can be validated
-const userModel = require('../models/user')
+const getConnection = require('../adapters/mysql')
 // Require errors
 const errors = require('../lib/errors')
+const bcrypt = require('bcryptjs')
 
-// Establish connection to datastore
-const userCollection = new Conn('user')
+const Verify = require('../verify')
 
 // Users controller object contains all methods which are exported and used 
 // by the service to process actions
-const users = {
+const Users = {
+
   /**
-   * To create a user the `body` of the request must be validated, then
-   * (if valid) inserted into the collection
+   * To create a new User record
    * @param {Object} req The request object
    * @returns {Promise.<Object>}
    */
-  createUser: (req) => {
-    return userModel.validate(req.body)
-      .catch(errors.validation)
-      .then((data) => {
-        // Check if user with email address already exists
-        return userCollection.find({ email: data.email })
-          .then((found) => {
-            // If found, throw 409 Conflict error
-            if (found.length > 0) errors.conflict(`Email address ${data.email} already exists`)
-            // If doesn't throw - returns data to be inserted in DB
-            return data
-          })
+  register: (req) => {
+    return Promise.using(getConnection(), (connection) => {
+      const username = connection.escape(req.body.username)
+      const salt = bcrypt.genSaltSync(10)
+      const password = bcrypt.hashSync(connection.escape(req.body.password), salt)
+      const qstr = 'INSERT INTO `user` (`username`, `password`)' +
+                   " VALUES ("+username+", '"+password+"')"
+      return connection.query(qstr)
+      .then( ({ affectedRows, insertId }) => {
+        return { affectedRows, insertId }
       })
-      .then((data) => userCollection.insert(data))
-  },
-  /**
-   * To get all users, the user collection is searched with no params
-   * @returns {Promise.<Array>}
-   */
-  getAllUsers: () => userCollection.find({}),
-  /**
-   * To get a specific user, the collection is search by the id param passed
-   * in the path parameters of the request
-   * @param {Object} req The request object
-   * @returns {Promise.<Object>}
-   */
-  getUserbyId: (req) => userCollection.findOne({ _id: req.params.id }),
-  /**
-   * To update a user account, the `body` must be validated, then an update 
-   * call is made to the collection with the query using the `id` from the path
-   * parameters and the `body` from the request
-   * @param {Object} req The request object
-   * @returns {Promise.<Object>}
-   */
-  updateUser: (req) => {
-    return userModel.validate(req.body)
       .catch(errors.validation)
-      .then((data) => userCollection.update({ _id: req.params.id }, data))
-      .then(() => userCollection.findOne({ _id: req.params.id }))
+    })
   },
+
+
   /**
-   * To delete a user record, the remove method of the collection is used with 
-   * the query being the `id` from the request path parameters
+   * To verify a User login attempt
    * @param {Object} req The request object
-   * @returns {Promise.<String>}
+   * @returns {Promise.<Object>}
    */
-  deleteUser: (req) => {
-    return userCollection.remove({ _id: req.params.id })
-      .then(() => 'Ok')
-  }
+  login: (req, res, next) => {
+      // First, validate the login credentials
+      passport.authenticate('local', (err, user, info) => {
+        if (err) {
+          return next(err)
+        }
+        if (!user) {
+          return res.status(401).json({
+            error: (info ? info.message : 'Invalid Credentials')
+          })
+        }
+        // If the login is successful, create a token and send it back
+        const token = Verify.getToken({'id': user.id, 'username': user.name})
+    
+        res.status(200).json({
+          status: 'Login Successful!',
+          success: true,
+          token: token
+        })
+      })(req, res, next)
+    }
 }
 
-module.exports = users
+module.exports = Users

@@ -5,7 +5,7 @@ const errors = {
    * @param {Object} err The validation error object
    */
   validation: (err) => {
-    const validationError = new Error(JSON.stringify(err.collection))
+    const validationError = new Error(err)
     validationError.statusCode = 400
     throw validationError
   },

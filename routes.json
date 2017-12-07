@@ -1,26 +1,32 @@
 {
-  "/users": {
+  "/reports": {
     "post": {
-      "controller": "users",
-      "handler": "createUser"
+      "controller": "reports",
+      "handler": "createReport"
     },
     "get": {
-      "controller": "users",
-      "handler": "getAllUsers"
+      "controller": "reports",
+      "handler": "getAllReports"
     }
   },
-  "/users/:id": {
+  "/reports/:id": {
     "get": {
-      "controller": "users",
-      "handler": "getUserbyId"
+      "controller": "reports",
+      "handler": "getReportById"
     },
     "put": {
-      "controller": "users",
-      "handler": "updateUser"
+      "controller": "reports",
+      "handler": "updateReport"
     },
     "delete": {
+      "controller": "reports",
+      "handler": "deleteReport"
+    }
+  },
+  "/register": {
+    "post": {
       "controller": "users",
-      "handler": "deleteUser"
+      "handler": "register"
     }
   }
 }
