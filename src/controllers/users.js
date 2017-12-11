@@ -57,7 +57,20 @@ const Users = {
         token: token
       })
     })(req, res, next)
-  }
+  },
+
+
+  /**
+   * To check if a token is valid or not
+   * @param {Object} req The request object
+   * @returns {Promise.<Object>}
+   */
+  validateToken: (req) => {
+    return new Promise( (resolve) => {
+      resolve({valid: true})
+    })
+  },
+  
 }
 
 module.exports = Users

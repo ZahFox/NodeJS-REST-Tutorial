@@ -34,5 +34,12 @@
       "handler": "register",
       "auth": false
     }
+  },
+  "/validate": {
+    "get": {
+      "controller": "users",
+      "handler": "validateToken",
+      "auth": true
+    }
   }
 }
