@@ -17,7 +17,8 @@ CREATE TABLE `report` (
   `hours_worked` float NOT NULL,
   `total_tips` float NOT NULL,
   `gas_money` float NOT NULL,
-  `profit` float NOT NULL
+  `profit` float NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `user` (
