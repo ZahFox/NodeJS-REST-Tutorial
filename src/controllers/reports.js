@@ -42,7 +42,10 @@ const Reports = {
    */
   getAllReports: () => {
     return Promise.using(getConnection(), (connection) => {
-      return connection.query('SELECT * FROM report')
+      return connection.query(
+        `SELECT report_id, date, day_of_week, store_location, hours_worked,
+                total_tips, gas_money, profit
+          FROM report WHERE active = 1`)
         .then( (rows) => {
           return rows
         })
@@ -59,7 +62,11 @@ const Reports = {
   getReportById: (req) => {
     return Promise.using(getConnection(), (connection) => {
       const id = connection.escape(req.params.id)
-      return connection.query(`SELECT * FROM report WHERE report_id = ${id}`)
+      return connection.query(
+          `SELECT report_id, date, day_of_week, store_location, hours_worked,
+                  total_tips, gas_money, profit
+            FROM report
+            WHERE report_id = ${id} AND active = 1`)
         .then( (rows) => {
           if (typeof rows != 'undefined' && rows != null && rows.length === 1) {
             return rows[0]
@@ -90,7 +97,7 @@ const Reports = {
         }
       })
       qStr = qStr.slice(0, qStr.length - 2) +
-        ` WHERE report_id = ${id}`
+        ` WHERE report_id = ${id} AND active = 1`
       if (count > 0) {
         return connection.query(qStr)
         .then( ({ affectedRows, changedRows }) => {
@@ -114,7 +121,8 @@ const Reports = {
     return Promise.using(getConnection(), (connection) => {
       const id = connection.escape(req.params.id)
       return connection.query(
-        `DELETE FROM report WHERE report_id = ${id}`
+        `UPDATE report SET active = 0
+           WHERE report_id = ${id} AND active = 1`
       )
       .then( ({ affectedRows }) => {
         return {affectedRows}
